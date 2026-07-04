@@ -1,6 +1,11 @@
+import 'package:bookease/controllers/booking_controller.dart';
+import 'package:bookease/models/booking_model.dart';
 import 'package:bookease/theme/app_colors.dart';
 import 'package:bookease/theme/app_theme.dart';
+import 'package:bookease/utils/show_custom_msg.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ProviderBookingsScreen extends StatefulWidget {
   const ProviderBookingsScreen({super.key});
@@ -17,6 +22,16 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BookingController>().getProviderBooking(
+        onError: () {
+          showCustomMsg(
+            context,
+            context.read<BookingController>().error ?? 'Failed to load',
+          );
+        },
+      );
+    });
   }
 
   @override
@@ -29,7 +44,6 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // App Bar / Header
         Padding(
           padding: const EdgeInsets.only(
             top: 24.0,
@@ -37,46 +51,25 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
             right: 24.0,
             bottom: 16.0,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.primary,
-                    ),
-                    onPressed: () {},
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    'Manage Bookings',
-                    style: AppTextStyles.h2.copyWith(fontSize: 20),
-                  ),
-                ],
-              ),
-              const Icon(Icons.search, color: AppColors.primary),
-            ],
+          child: Text(
+            'Manage Bookings',
+            style: AppTextStyles.h2.copyWith(fontSize: 20),
           ),
         ),
 
-        // Custom Tab Bar
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Container(
-            height: 48,
+            height: 36,
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: TabBar(
               controller: _tabController,
               indicator: BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(12),
               ),
               labelColor: Colors.white,
               unselectedLabelColor: Colors.grey.shade600,
@@ -98,78 +91,83 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
         ),
         const SizedBox(height: 16),
 
-        // Tab Views
         Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildIncomingList(),
-              _buildConfirmedList(), // Confirmed
-              const Center(child: Text('Completed Bookings')), // Completed
-            ],
+          child: Consumer<BookingController>(
+            builder: (context, booking, child) {
+              if (booking.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final incoming = booking.bookings
+                  .where((b) => b.status == 'pending')
+                  .toList();
+              final confirmed = booking.bookings
+                  .where((b) => b.status == 'active')
+                  .toList();
+              final completed = booking.bookings
+                  .where(
+                    (b) => b.status == 'complete' || b.status == 'delivered',
+                  )
+                  .toList();
+
+              return TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildList(
+                    bookings: incoming,
+                    emptyText: 'No incoming requests',
+                  ),
+                  _buildList(
+                    bookings: confirmed,
+                    emptyText: 'No confirmed bookings',
+                  ),
+                  _buildList(
+                    bookings: completed,
+                    emptyText: 'No completed bookings',
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget _buildIncomingList() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24.0,
-        vertical: 8.0,
-      ).copyWith(bottom: 80),
-      children: [
-        _buildIncomingRequestCard(
-          name: 'Michael Chen',
-          service: 'AC Maintenance',
-          date: 'Thursday, Oct 24 • 10:00 AM',
-          location: '88 Maplewood Ave, Unit 402',
-          imageUrl:
-              'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80',
-        ),
-        _buildIncomingRequestCard(
-          name: 'Sarah Jenkins',
-          service: 'Plumbing Repair',
-          date: 'Friday, Oct 25 • 2:30 PM',
-          location: '124 Willow Creek Dr',
-          imageUrl:
-              'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildConfirmedList() {
-    return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24.0,
-        vertical: 8.0,
-      ).copyWith(bottom: 80),
-      children: [
-        // Using a similar layout but with different buttons
-        _buildConfirmedCard(
-          name: 'David Wilson',
-          service: 'Electrical Inspection',
-          date: 'Oct 26',
-          time: '09:00 AM',
-          imageUrl:
-              'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIncomingRequestCard({
-    required String name,
-    required String service,
-    required String date,
-    required String location,
-    required String imageUrl,
+  Widget _buildList({
+    required List<BookingModel> bookings,
+    required String emptyText,
   }) {
+    if (bookings.isEmpty) {
+      return Center(
+        child: Text(
+          emptyText,
+          style: AppTextStyles.bodyLarge.copyWith(color: Colors.grey.shade600),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () =>
+          context.read<BookingController>().getProviderBooking(onError: () {}),
+      child: ListView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24.0,
+          vertical: 8.0,
+        ).copyWith(bottom: 80),
+        children: bookings.map(_buildBookingCard).toList(),
+      ),
+    );
+  }
+
+  Widget _buildBookingCard(BookingModel booking) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, '/provider_booking_details');
+        Navigator.pushNamed(
+          context,
+          '/provider_booking_details',
+          arguments: booking.id,
+        );
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -186,136 +184,63 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
             ),
           ],
         ),
-        child: Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundImage: NetworkImage(imageUrl),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        service,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'New Request',
-                    style: TextStyle(
-                      color: Colors.red.shade900,
-                      fontSize: 12,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: booking.serviceImage.isNotEmpty
+                  ? Image.network(
+                      booking.serviceImage,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _avatarPlaceholder(),
+                    )
+                  : _avatarPlaceholder(),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    booking.serviceName,
+                    style: AppTextStyles.bodyLarge.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.calendar_today_outlined,
-                        size: 16,
-                        color: Colors.black54,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(date, style: AppTextStyles.bodyMedium),
-                    ],
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${booking.servicePrice.toStringAsFixed(2)}',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.primary,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        size: 16,
-                        color: Colors.black54,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(location, style: AppTextStyles.bodyMedium),
-                      ),
-                    ],
+                  const SizedBox(height: 4),
+                  Text(
+                    '${DateFormat('MMM d, yyyy').format(booking.startTime)} • ${DateFormat('h:mm a').format(booking.startTime)}',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text(
-                      'Accept',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: _statusColor(booking.status).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                booking.status.toUpperCase(),
+                style: TextStyle(
+                  color: _statusColor(booking.status),
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey.shade400),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: Text(
-                      'Decline',
-                      style: TextStyle(
-                        color: Colors.grey.shade800,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),
@@ -323,174 +248,31 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
     );
   }
 
-  Widget _buildConfirmedCard({
-    required String name,
-    required String service,
-    required String date,
-    required String time,
-    required String imageUrl,
-  }) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(context, '/provider_booking_details');
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundImage: NetworkImage(imageUrl),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        service,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.calendar_month, color: Colors.black26),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'DATE',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.primary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          date,
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'TIME',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.primary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          time,
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text(
-                      'Accept',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ), // Note: In the design the confirmed tab also has Accept/Decline, which might be a UI mockup error, but reproducing it.
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.grey.shade400),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: Text(
-                      'Decline',
-                      style: TextStyle(
-                        color: Colors.grey.shade800,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'pending':
+        return Colors.orange;
+      case 'active':
+        return Colors.blue;
+      case 'complete':
+      case 'delivered':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _avatarPlaceholder() {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        shape: BoxShape.circle,
       ),
+      child: const Icon(Icons.person, color: Colors.grey, size: 24),
     );
   }
 }

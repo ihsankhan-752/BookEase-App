@@ -132,21 +132,53 @@ class BookingController extends ChangeNotifier {
       }
 
       final result = await _bookingServices.getUserBookings(accessToken: token);
-      print('API RESPONSE: $result');
 
       if (result['success'] == true) {
-        print('RAW BOOKINGS COUNT: ${(result['bookings'] as List).length}');
         _bookings = (result['bookings'] as List).map((b) {
           try {
             return BookingModel.fromJson(b);
           } catch (e, st) {
-            print('PARSE ERROR on booking: $b');
-            print('ERROR: $e');
-            print(st);
             rethrow;
           }
         }).toList();
-        print('PARSED BOOKINGS COUNT: ${_bookings.length}');
+      } else {
+        _error = result['message'];
+        onError();
+      }
+    } catch (e) {
+      _error = 'Something went wrong. Please try again.';
+      onError();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getProviderBooking({required VoidCallback onError}) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final token = _storageService.getAccessToken();
+      if (token == null) {
+        _error = 'Not authenticated';
+        onError();
+        return;
+      }
+
+      final result = await _bookingServices.getProviderBooking(
+        accessToken: token,
+      );
+
+      if (result['success'] == true) {
+        _bookings = (result['bookings'] as List).map((b) {
+          try {
+            return BookingModel.fromJson(b);
+          } catch (e, st) {
+            rethrow;
+          }
+        }).toList();
       } else {
         _error = result['message'];
         onError();

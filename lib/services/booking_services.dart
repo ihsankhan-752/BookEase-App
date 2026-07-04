@@ -45,4 +45,18 @@ class BookingServices {
 
     return jsonDecode(response.body);
   }
+
+  Future<Map<String, dynamic>> getProviderBooking({
+    required String accessToken,
+  }) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/bookings/provider'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    return jsonDecode(response.body);
+  }
 }
