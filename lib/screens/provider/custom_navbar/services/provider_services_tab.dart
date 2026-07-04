@@ -1,0 +1,192 @@
+import 'package:bookease/screens/provider/custom_navbar/services/provider_add_service_screen.dart';
+import 'package:bookease/theme/app_colors.dart';
+import 'package:bookease/theme/app_theme.dart';
+import 'package:bookease/utils/show_custom_msg.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../controllers/service_provider_controller.dart';
+import 'widgets/service_card_widget.dart';
+import 'widgets/stat_card_widget.dart';
+
+class ProviderServicesScreen extends StatefulWidget {
+  const ProviderServicesScreen({super.key});
+
+  @override
+  State<ProviderServicesScreen> createState() => _ProviderServicesScreenState();
+}
+
+class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ServiceController>().getMyServices(
+        onError: () {
+          showCustomMsg(
+            context,
+            context.read<ServiceController>().error ??
+                'Failed to load services',
+          );
+        },
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFFF8F9FA),
+        elevation: 0,
+        title: Text(
+          'My Services',
+          style: AppTextStyles.h2.copyWith(
+            fontSize: 20,
+            color: AppColors.primary,
+          ),
+        ),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: AppColors.primary),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: AppColors.primary),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: Consumer<ServiceController>(
+        builder: (context, service, child) {
+          if (service.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCardWidget(
+                        label: 'Total Services',
+                        value: service.services.length.toString(),
+                        color: const Color(0xFFE8EAF6),
+                        valueColor: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: StatCardWidget(
+                        label: 'Active Now',
+                        value: service.services
+                            .where((s) => s.isActive)
+                            .length
+                            .toString(),
+                        color: const Color(0xFFFCE4EC),
+                        valueColor: const Color(0xFFC2185B),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                if (service.services.isEmpty)
+                  Center(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 60),
+                        Icon(
+                          Icons.home_repair_service_outlined,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No services yet',
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap + to add your first service',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                ...service.services.map(
+                  (s) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: ServiceCardWidget(
+                      service: s,
+                      onEdit: () {},
+                      onDelete: () => _confirmDelete(context, s.id),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ProviderAddServiceScreen(),
+            ),
+          ).then((_) {
+            context.read<ServiceController>().getMyServices(onError: () {});
+          });
+        },
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, String serviceId) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete Service'),
+        content: const Text('Are you sure you want to delete this service?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          // TextButton(
+          //   onPressed: () {
+          //     Navigator.pop(context);
+          //     context.read<ServiceController>().deleteService(
+          //       serviceId: serviceId,
+          //       onSuccess: () =>
+          //           showCustomMsg(context, 'Service Deleted'),
+          //       onError: () => showCustomMsg(
+          //         context,
+          //         context.read<ServiceController>().error ??
+          //             'Failed to delete',
+          //       ),
+          //     );
+          //   },
+          //   child: const Text('Delete',
+          //       style: TextStyle(color: Colors.red)),
+          // ),
+        ],
+      ),
+    );
+  }
+}
