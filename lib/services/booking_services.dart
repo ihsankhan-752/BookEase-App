@@ -42,6 +42,7 @@ class BookingServices {
         'Authorization': 'Bearer $accessToken',
       },
     );
+
     return jsonDecode(response.body);
   }
 }

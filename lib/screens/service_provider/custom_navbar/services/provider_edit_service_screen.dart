@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:bookease/models/service_model.dart';
-import 'package:bookease/screens/provider/custom_navbar/services/widgets/add_service_category_dropdown.dart';
-import 'package:bookease/screens/provider/custom_navbar/services/widgets/add_service_duration_dropdown_widget.dart';
-import 'package:bookease/screens/provider/custom_navbar/services/widgets/add_service_text_field.dart';
-import 'package:bookease/screens/provider/custom_navbar/services/widgets/edit_service_image_upload_widget.dart';
+import 'package:bookease/screens/service_provider/custom_navbar/services/widgets/add_service_category_dropdown.dart';
+import 'package:bookease/screens/service_provider/custom_navbar/services/widgets/add_service_duration_dropdown_widget.dart';
+import 'package:bookease/screens/service_provider/custom_navbar/services/widgets/add_service_text_field.dart';
+import 'package:bookease/screens/service_provider/custom_navbar/services/widgets/edit_service_image_upload_widget.dart';
 import 'package:bookease/theme/app_colors.dart';
 import 'package:bookease/theme/app_theme.dart';
 import 'package:bookease/utils/show_custom_msg.dart';

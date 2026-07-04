@@ -1,7 +1,7 @@
-import 'package:bookease/screens/provider/custom_navbar/services/provider_add_service_screen.dart';
-import 'package:bookease/screens/provider/custom_navbar/services/provider_edit_service_screen.dart';
-import 'package:bookease/screens/provider/custom_navbar/services/widgets/delete_dialog_widget.dart';
-import 'package:bookease/screens/provider/custom_navbar/services/widgets/no_service_widget.dart';
+import 'package:bookease/screens/service_provider/custom_navbar/services/provider_add_service_screen.dart';
+import 'package:bookease/screens/service_provider/custom_navbar/services/provider_edit_service_screen.dart';
+import 'package:bookease/screens/service_provider/custom_navbar/services/widgets/delete_dialog_widget.dart';
+import 'package:bookease/screens/service_provider/custom_navbar/services/widgets/no_service_widget.dart';
 import 'package:bookease/theme/app_colors.dart';
 import 'package:bookease/theme/app_theme.dart';
 import 'package:bookease/utils/show_custom_msg.dart';

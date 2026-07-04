@@ -1,9 +1,5 @@
 import 'package:bookease/screens/auth/login_screen.dart';
 import 'package:bookease/screens/auth/register_screen.dart';
-import 'package:bookease/screens/provider/custom_navbar/bookings/provider_booking_details_screen.dart';
-import 'package:bookease/screens/provider/custom_navbar/provider_custom_navbar.dart';
-import 'package:bookease/screens/provider/custom_navbar/services/provider_add_service_screen.dart';
-import 'package:bookease/screens/provider/provider_availability_screen.dart';
 import 'package:bookease/screens/shared/onboarding_screen.dart';
 import 'package:bookease/screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +12,10 @@ import '../screens/customer/_/custom_navbar.dart';
 import '../screens/customer/_/home/service_detail_screen.dart';
 import '../screens/customer/_/notification/notification_screen.dart';
 import '../screens/customer/_/profile/profile_screen.dart';
+import '../screens/service_provider/custom_navbar/bookings/provider_booking_details_screen.dart';
+import '../screens/service_provider/custom_navbar/provider_custom_navbar.dart';
+import '../screens/service_provider/custom_navbar/services/provider_add_service_screen.dart';
+import '../screens/service_provider/provider_availability_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
