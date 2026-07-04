@@ -8,6 +8,7 @@ import 'package:bookease/screens/shared/onboarding_screen.dart';
 import 'package:bookease/screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../models/service_model.dart';
 import '../screens/customer/_/booking/booking_detail_screen.dart';
 import '../screens/customer/_/booking/booking_form_screen.dart';
 import '../screens/customer/_/booking/booking_screen.dart';
@@ -52,7 +53,10 @@ class AppRoutes {
       case bookingDetail:
         return MaterialPageRoute(builder: (_) => const BookingDetailScreen());
       case serviceDetail:
-        return MaterialPageRoute(builder: (_) => const ServiceDetailScreen());
+        final service = settings.arguments as ServiceModel;
+        return MaterialPageRoute(
+          builder: (_) => ServiceDetailScreen(service: service),
+        );
       case notifications:
         return MaterialPageRoute(builder: (_) => const NotificationScreen());
       case profile:

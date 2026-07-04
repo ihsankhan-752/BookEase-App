@@ -159,6 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => Navigator.pushNamed(
                           context,
                           AppRoutes.serviceDetail,
+                          arguments: service,
                         ),
                       ),
                     );
