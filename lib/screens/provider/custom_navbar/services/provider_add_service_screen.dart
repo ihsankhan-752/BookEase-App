@@ -1,5 +1,6 @@
 import 'package:bookease/controllers/image_controller.dart';
 import 'package:bookease/screens/provider/custom_navbar/services/widgets/add_service_appbar_widget.dart';
+import 'package:bookease/screens/provider/custom_navbar/services/widgets/add_service_category_dropdown.dart';
 import 'package:bookease/screens/provider/custom_navbar/services/widgets/add_service_duration_dropdown_widget.dart';
 import 'package:bookease/screens/provider/custom_navbar/services/widgets/add_service_image_upload_widget.dart';
 import 'package:bookease/screens/provider/custom_navbar/services/widgets/add_service_text_field.dart';
@@ -20,6 +21,7 @@ class ProviderAddServiceScreen extends StatefulWidget {
 
 class _ProviderAddServiceScreenState extends State<ProviderAddServiceScreen> {
   String _selectedDuration = '1 hour';
+  String _selectedCategory = 'Cleaning';
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -64,6 +66,12 @@ class _ProviderAddServiceScreenState extends State<ProviderAddServiceScreen> {
                       maxLines: 4,
                     ),
                     const SizedBox(height: 24),
+                    AddServiceCategoryDropdown(
+                      selectedCategory: _selectedCategory,
+                      onChanged: (val) =>
+                          setState(() => _selectedCategory = val),
+                    ),
+                    const SizedBox(height: 24),
                     AddServiceTextField(
                       label: 'Price (\$)',
                       hintText: '0.00',
@@ -97,6 +105,7 @@ class _ProviderAddServiceScreenState extends State<ProviderAddServiceScreen> {
                             service.createService(
                               name: _nameController.text.trim(),
                               description: _descriptionController.text.trim(),
+                              category: _selectedCategory,
                               duration: _parseDuration(_selectedDuration),
                               price:
                                   double.tryParse(

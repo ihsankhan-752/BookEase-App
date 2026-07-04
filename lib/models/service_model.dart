@@ -27,6 +27,7 @@ class ServiceModel {
   final int totalReviews;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String category;
 
   ServiceModel({
     required this.id,
@@ -43,6 +44,7 @@ class ServiceModel {
     this.totalReviews = 0,
     required this.createdAt,
     required this.updatedAt,
+    required this.category,
   }) : image = image ?? ServiceImage();
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -62,6 +64,7 @@ class ServiceModel {
       serviceProviderId: providerId,
       serviceProviderName: providerName,
       serviceProviderEmail: providerEmail,
+      category: json['category'] ?? 'Other',
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       duration: (json['duration'] ?? 0) is int
@@ -84,6 +87,7 @@ class ServiceModel {
     'description': description,
     'duration': duration,
     'price': price,
+    'category': category,
     'image': image.toJson(),
     'isActive': isActive,
     'averageRating': averageRating,
@@ -97,6 +101,7 @@ class ServiceModel {
     'description': description,
     'duration': duration,
     'price': price,
+    'category': category,
   };
 
   ServiceModel copyWith({
@@ -114,6 +119,7 @@ class ServiceModel {
     int? totalReviews,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? category,
   }) {
     return ServiceModel(
       id: id ?? this.id,
@@ -130,6 +136,7 @@ class ServiceModel {
       totalReviews: totalReviews ?? this.totalReviews,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      category: category ?? this.category,
     );
   }
 }

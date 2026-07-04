@@ -21,6 +21,7 @@ class ServiceController extends ChangeNotifier {
   Future<void> createService({
     required String name,
     required String description,
+    required String category,
     required int duration,
     required double price,
     File? image,
@@ -65,6 +66,7 @@ class ServiceController extends ChangeNotifier {
         duration: duration,
         price: price,
         image: image,
+        category: category,
       );
 
       if (result['success'] == true) {
@@ -140,6 +142,73 @@ class ServiceController extends ChangeNotifier {
 
       if (result['success'] == true) {
         _services.removeWhere((s) => s.id == serviceId);
+        onSuccess();
+      } else {
+        _error = result['message'];
+        onError();
+      }
+    } catch (e) {
+      _error = 'Something went wrong. Please try again.';
+      onError();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateService({
+    required String serviceId,
+    required String name,
+    required String description,
+    required int duration,
+    required double price,
+    required String category,
+    File? image,
+    required VoidCallback onSuccess,
+    required VoidCallback onError,
+  }) async {
+    if (name.isEmpty) {
+      _error = 'Service name is required';
+      notifyListeners();
+      onError();
+      return;
+    }
+    if (price <= 0) {
+      _error = 'Price must be greater than 0';
+      notifyListeners();
+      onError();
+      return;
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final token = _storageService.getAccessToken();
+      if (token == null) {
+        _error = 'Not authenticated';
+        onError();
+        return;
+      }
+
+      final result = await _serviceServices.updateService(
+        accessToken: token,
+        serviceId: serviceId,
+        name: name,
+        description: description,
+        duration: duration,
+        price: price,
+        category: category,
+        image: image,
+      );
+
+      if (result['success'] == true) {
+        final updatedService = ServiceModel.fromJson(result['service']);
+        final index = _services.indexWhere((s) => s.id == serviceId);
+        if (index != -1) {
+          _services[index] = updatedService;
+        }
         onSuccess();
       } else {
         _error = result['message'];

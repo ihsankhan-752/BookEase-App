@@ -1,4 +1,4 @@
-import 'package:bookease/screens/provider/custom_navbar/services/provider_services_tab.dart';
+import 'package:bookease/screens/provider/custom_navbar/services/provider_services_screen.dart';
 import 'package:bookease/screens/provider/custom_navbar/settings/provider_settings_tab.dart';
 import 'package:bookease/theme/app_colors.dart';
 import 'package:flutter/material.dart';

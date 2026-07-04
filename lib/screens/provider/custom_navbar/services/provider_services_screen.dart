@@ -1,4 +1,5 @@
 import 'package:bookease/screens/provider/custom_navbar/services/provider_add_service_screen.dart';
+import 'package:bookease/screens/provider/custom_navbar/services/provider_edit_service_screen.dart';
 import 'package:bookease/screens/provider/custom_navbar/services/widgets/delete_dialog_widget.dart';
 import 'package:bookease/screens/provider/custom_navbar/services/widgets/no_service_widget.dart';
 import 'package:bookease/theme/app_colors.dart';
@@ -105,7 +106,15 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                     padding: const EdgeInsets.only(bottom: 16),
                     child: ServiceCardWidget(
                       service: s,
-                      onEdit: () {},
+                      onEdit: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ProviderEditServiceScreen(service: s),
+                          ),
+                        );
+                      },
                       onDelete: () => deleteDialogWidget(context, s.id),
                     ),
                   ),
