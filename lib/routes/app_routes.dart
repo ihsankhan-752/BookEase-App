@@ -49,7 +49,10 @@ class AppRoutes {
       case bookings:
         return MaterialPageRoute(builder: (_) => const BookingScreen());
       case bookingForm:
-        return MaterialPageRoute(builder: (_) => const BookingFormScreen());
+        final service = settings.arguments as ServiceModel;
+        return MaterialPageRoute(
+          builder: (_) => BookingFormScreen(service: service),
+        );
       case bookingDetail:
         return MaterialPageRoute(builder: (_) => const BookingDetailScreen());
       case serviceDetail:

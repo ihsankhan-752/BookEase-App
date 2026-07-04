@@ -334,7 +334,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           const SizedBox(height: 24),
           PrimaryButton(
-            text: 'Next',
+            title: 'Next',
             icon: Icons.arrow_forward,
 
             onPressed: _nextPage,
@@ -379,7 +379,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               const SizedBox(width: 16),
               Expanded(
                 child: PrimaryButton(
-                  text: 'Next Step',
+                  title: 'Next Step',
                   icon: Icons.arrow_forward,
 
                   onPressed: _nextPage,
@@ -410,7 +410,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          PrimaryButton(text: 'Get Started', onPressed: _nextPage),
+          PrimaryButton(title: 'Get Started', onPressed: _nextPage),
           const SizedBox(height: 16),
           Text('Step 3 of 3', style: AppTextStyles.bodyMedium),
         ],

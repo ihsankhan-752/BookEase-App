@@ -115,7 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Consumer<AuthController>(
               builder: (context, auth, child) {
                 return PrimaryButton(
-                  text: 'Sign Up',
+                  title: 'Sign Up',
                   icon: Icons.arrow_forward,
                   isLoading: auth.isLoading,
                   onPressed: auth.isLoading

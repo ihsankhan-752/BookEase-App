@@ -1,4 +1,5 @@
 import 'package:bookease/controllers/auth_controller.dart';
+import 'package:bookease/controllers/booking_controller.dart';
 import 'package:bookease/controllers/image_controller.dart';
 import 'package:bookease/controllers/service_provider_controller.dart';
 import 'package:bookease/controllers/user_controller.dart';
@@ -25,6 +26,7 @@ class BookEaseApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserController()),
         ChangeNotifierProvider(create: (_) => ImageController()),
         ChangeNotifierProvider(create: (_) => ServiceController()),
+        ChangeNotifierProvider(create: (_) => BookingController()),
       ],
       child: MaterialApp(
         title: AppConstants.appName,

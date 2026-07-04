@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
 class PrimaryButton extends StatelessWidget {
-  final String text;
+  final String title;
   final IconData? icon;
   final VoidCallback? onPressed;
   final bool isLoading;
 
   const PrimaryButton({
     super.key,
-    required this.text,
+    required this.title,
     this.icon,
     this.onPressed,
     this.isLoading = false,
@@ -37,7 +37,7 @@ class PrimaryButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    text,
+                    title,
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   if (icon != null) ...[

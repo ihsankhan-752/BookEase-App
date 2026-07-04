@@ -97,7 +97,7 @@ class _ProviderAddServiceScreenState extends State<ProviderAddServiceScreen> {
               child: Consumer<ServiceController>(
                 builder: (context, service, child) {
                   return PrimaryButton(
-                    text: "Save Service",
+                    title: "Save Service",
                     isLoading: service.isLoading,
                     onPressed: service.isLoading
                         ? null
