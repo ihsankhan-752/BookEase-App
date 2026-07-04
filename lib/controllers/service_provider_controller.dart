@@ -115,4 +115,42 @@ class ServiceController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> deleteService({
+    required String serviceId,
+    required VoidCallback onSuccess,
+    required VoidCallback onError,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final token = _storageService.getAccessToken();
+      if (token == null) {
+        _error = 'Not authenticated';
+        onError();
+        return;
+      }
+
+      final result = await _serviceServices.deleteService(
+        accessToken: token,
+        serviceId: serviceId,
+      );
+
+      if (result['success'] == true) {
+        _services.removeWhere((s) => s.id == serviceId);
+        onSuccess();
+      } else {
+        _error = result['message'];
+        onError();
+      }
+    } catch (e) {
+      _error = 'Something went wrong. Please try again.';
+      onError();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

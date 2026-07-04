@@ -1,4 +1,6 @@
 import 'package:bookease/screens/provider/custom_navbar/services/provider_add_service_screen.dart';
+import 'package:bookease/screens/provider/custom_navbar/services/widgets/delete_dialog_widget.dart';
+import 'package:bookease/screens/provider/custom_navbar/services/widgets/no_service_widget.dart';
 import 'package:bookease/theme/app_colors.dart';
 import 'package:bookease/theme/app_theme.dart';
 import 'package:bookease/utils/show_custom_msg.dart';
@@ -96,33 +98,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                if (service.services.isEmpty)
-                  Center(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 60),
-                        Icon(
-                          Icons.home_repair_service_outlined,
-                          size: 64,
-                          color: Colors.grey.shade400,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No services yet',
-                          style: AppTextStyles.bodyLarge.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Tap + to add your first service',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: Colors.grey.shade400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                if (service.services.isEmpty) NoServiceWidget(),
 
                 ...service.services.map(
                   (s) => Padding(
@@ -130,7 +106,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                     child: ServiceCardWidget(
                       service: s,
                       onEdit: () {},
-                      onDelete: () => _confirmDelete(context, s.id),
+                      onDelete: () => deleteDialogWidget(context, s.id),
                     ),
                   ),
                 ),
@@ -153,39 +129,6 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
         },
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white, size: 28),
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, String serviceId) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Delete Service'),
-        content: const Text('Are you sure you want to delete this service?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          // TextButton(
-          //   onPressed: () {
-          //     Navigator.pop(context);
-          //     context.read<ServiceController>().deleteService(
-          //       serviceId: serviceId,
-          //       onSuccess: () =>
-          //           showCustomMsg(context, 'Service Deleted'),
-          //       onError: () => showCustomMsg(
-          //         context,
-          //         context.read<ServiceController>().error ??
-          //             'Failed to delete',
-          //       ),
-          //     );
-          //   },
-          //   child: const Text('Delete',
-          //       style: TextStyle(color: Colors.red)),
-          // ),
-        ],
       ),
     );
   }

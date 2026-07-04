@@ -45,4 +45,21 @@ class ServiceProviderServices {
 
     return jsonDecode(response.body);
   }
+
+  Future<Map<String, dynamic>> deleteService({
+    required String accessToken,
+    required String serviceId,
+  }) async {
+    final response = await http.delete(
+      Uri.parse('${ApiConstants.baseUrl}/serviceProvider/$serviceId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    print(response.body);
+
+    return jsonDecode(response.body);
+  }
 }
