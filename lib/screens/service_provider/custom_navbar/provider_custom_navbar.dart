@@ -33,8 +33,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
       body: SafeArea(
         child: IndexedStack(index: _selectedIndex, children: _screens),
       ),
-      floatingActionButton:
-          _selectedIndex == 0 || _selectedIndex == 1 || _selectedIndex == 2
+      floatingActionButton: _selectedIndex == 1
           ? FloatingActionButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/provider_add_service');
@@ -51,7 +50,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           });
         },
         backgroundColor: Colors.white,
-        indicatorColor: AppColors.primary.withOpacity(0.15),
+        indicatorColor: AppColors.primary.withValues(alpha: 0.15),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),

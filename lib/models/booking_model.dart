@@ -1,6 +1,8 @@
 class BookingModel {
   final String id;
   final String userId;
+  final String customerName;
+  final String customerEmail;
   final String serviceProviderId;
   final String serviceProviderName;
   final String serviceId;
@@ -18,6 +20,8 @@ class BookingModel {
   BookingModel({
     required this.id,
     required this.userId,
+    this.customerName = '',
+    this.customerEmail = '',
     required this.serviceProviderId,
     this.serviceProviderName = '',
     required this.serviceId,
@@ -36,12 +40,13 @@ class BookingModel {
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     final serviceField = json['serviceId'];
     final providerField = json['serviceProviderId'];
+    final userField = json['userId'];
 
     return BookingModel(
       id: json['_id'] ?? '',
-      userId: json['userId'] is Map
-          ? json['userId']['_id'] ?? ''
-          : json['userId'] ?? '',
+      userId: userField is Map ? userField['_id'] ?? '' : userField ?? '',
+      customerName: userField is Map ? userField['name'] ?? '' : '',
+      customerEmail: userField is Map ? userField['email'] ?? '' : '',
       serviceProviderId: providerField is Map
           ? providerField['_id'] ?? ''
           : providerField ?? '',
@@ -55,17 +60,16 @@ class BookingModel {
       serviceImage: serviceField is Map && serviceField['image'] is Map
           ? (serviceField['image']['url'] ?? '')
           : '',
-      servicePrice: serviceField is Map
-          ? (serviceField['price'] ?? 0).toDouble()
-          : 0,
-      serviceDuration: serviceField is Map
-          ? (serviceField['duration'] ?? 0) is int
-                ? serviceField['duration']
-                : (serviceField['duration'] as num).toInt()
+      servicePrice: serviceField is Map && serviceField['price'] != null
+          ? (serviceField['price'] as num)
+                .toDouble() // ✅ safe cast
+          : 0.0,
+      serviceDuration: serviceField is Map && serviceField['duration'] != null
+          ? (serviceField['duration'] as num).toInt()
           : 0,
       startTime: DateTime.tryParse(json['startTime'] ?? '') ?? DateTime.now(),
       endTime: DateTime.tryParse(json['endTime'] ?? '') ?? DateTime.now(),
-      status: json['status'] ?? 'active',
+      status: json['status'] ?? 'pending',
       paymentStatus: json['paymentStatus'] ?? 'unpaid',
       notes: json['notes'] ?? '',
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),

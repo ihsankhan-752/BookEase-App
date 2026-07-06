@@ -2,12 +2,15 @@ import 'package:bookease/controllers/auth_controller.dart';
 import 'package:bookease/controllers/booking_controller.dart';
 import 'package:bookease/controllers/image_controller.dart';
 import 'package:bookease/controllers/service_provider_controller.dart';
+import 'package:bookease/controllers/socket_controller.dart';
 import 'package:bookease/controllers/user_controller.dart';
 import 'package:bookease/routes/app_routes.dart';
 import 'package:bookease/services/storage_services.dart';
 import 'package:bookease/utils/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,8 +30,10 @@ class BookEaseApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ImageController()),
         ChangeNotifierProvider(create: (_) => ServiceController()),
         ChangeNotifierProvider(create: (_) => BookingController()),
+        ChangeNotifierProvider(create: (_) => SocketController(navigatorKey: navigatorKey)),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         title: AppConstants.appName,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

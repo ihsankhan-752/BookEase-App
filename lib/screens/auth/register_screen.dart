@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/auth_controller.dart';
+import '../../controllers/socket_controller.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -127,6 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             password: _passwordController.text.trim(),
                             role: _isCustomer ? 'user' : 'serviceProvider',
                             onSuccess: () {
+                              Provider.of<SocketController>(context, listen: false).connect();
                               final role = auth.role;
                               if (role == 'serviceProvider') {
                                 Navigator.pushReplacementNamed(

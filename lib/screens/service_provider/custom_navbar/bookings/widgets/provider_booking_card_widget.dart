@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../../controllers/booking_controller.dart';
 import '../../../../../models/booking_model.dart';
 import '../../../../../theme/app_colors.dart';
 import '../../../../../theme/app_theme.dart';
@@ -12,8 +14,12 @@ Widget providerBookingCardWidget(BuildContext context, BookingModel booking) {
       Navigator.pushNamed(
         context,
         '/provider_booking_details',
-        arguments: booking.id,
-      );
+        arguments: booking,
+      ).then((_) {
+        if (context.mounted) {
+          context.read<BookingController>().getProviderBooking(onError: () {});
+        }
+      });
     },
     borderRadius: BorderRadius.circular(16),
     child: Container(

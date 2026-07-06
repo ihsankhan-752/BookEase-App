@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/auth_controller.dart';
+import '../../controllers/socket_controller.dart';
 import '../../utils/show_custom_msg.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -86,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     password: _passwordController.text.trim(),
 
                                     onSuccess: () {
+                                      Provider.of<SocketController>(context, listen: false).connect();
                                       final role = auth.role;
                                       if (role == 'serviceProvider') {
                                         Navigator.pushReplacementNamed(

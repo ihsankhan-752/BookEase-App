@@ -4,6 +4,7 @@ import 'package:bookease/screens/shared/onboarding_screen.dart';
 import 'package:bookease/screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../models/booking_model.dart';
 import '../models/service_model.dart';
 import '../screens/customer/_/booking/booking_detail_screen.dart';
 import '../screens/customer/_/booking/booking_form_screen.dart';
@@ -72,9 +73,12 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => const ProviderAvailabilityScreen(),
         );
-      case providerBookingDetails:
+      // in providerBookingCardWidget onTap
+
+      case '/provider_booking_details':
+        final booking = settings.arguments as BookingModel;
         return MaterialPageRoute(
-          builder: (_) => const ProviderBookingDetailsScreen(),
+          builder: (_) => ProviderBookingDetailsScreen(booking: booking),
         );
       case providerAddService:
         return MaterialPageRoute(

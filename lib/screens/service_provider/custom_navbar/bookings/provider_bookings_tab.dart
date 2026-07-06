@@ -13,14 +13,14 @@ class ProviderBookingsScreen extends StatefulWidget {
   State<ProviderBookingsScreen> createState() => _ProviderBookingsScreenState();
 }
 
-class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> {
+  int _selectedTab = 0;
+
+  final List<String> _tabs = ['Pending', 'Active', 'Complete', 'Cancelled'];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<BookingController>().getProviderBooking(
         onError: () {
@@ -34,14 +34,9 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
   }
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(
@@ -50,45 +45,56 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
             right: 24.0,
             bottom: 16.0,
           ),
-          child: Text(
-            'Manage Bookings',
-            style: AppTextStyles.h2.copyWith(
-              fontSize: 20,
-              color: AppColors.primary,
+          child: Center(
+            child: Text(
+              'Manage Bookings',
+              style: AppTextStyles.h2.copyWith(
+                fontSize: 20,
+                color: AppColors.primary,
+              ),
             ),
           ),
         ),
 
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Container(
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.grey.shade600,
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-              ),
-              tabs: const [
-                Tab(text: 'Incoming'),
-                Tab(text: 'Confirmed'),
-                Tab(text: 'Completed'),
-              ],
-            ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 14.0),
+          child: Row(
+            children: List.generate(_tabs.length, (index) {
+              final isSelected = index == _selectedTab;
+              return GestureDetector(
+                onTap: () => setState(() => _selectedTab = index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.only(right: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary
+                        : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary
+                          : Colors.grey.shade300,
+                    ),
+                  ),
+                  child: Text(
+                    _tabs[index],
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey.shade700,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              );
+            }),
           ),
         ),
         const SizedBox(height: 16),
@@ -100,34 +106,27 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen>
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final incoming = booking.bookings
-                  .where((b) => b.status == 'pending')
-                  .toList();
-              final confirmed = booking.bookings
-                  .where((b) => b.status == 'active')
-                  .toList();
-              final completed = booking.bookings
-                  .where(
-                    (b) => b.status == 'complete' || b.status == 'delivered',
-                  )
-                  .toList();
+              final lists = [
+                booking.bookings.where((b) => b.status == 'pending').toList(),
+                booking.bookings.where((b) => b.status == 'active').toList(),
+                booking.bookings
+                    .where(
+                      (b) => b.status == 'complete' || b.status == 'delivered',
+                    )
+                    .toList(),
+                booking.bookings.where((b) => b.status == 'cancelled').toList(),
+              ];
 
-              return TabBarView(
-                controller: _tabController,
-                children: [
-                  BookingListWidget(
-                    bookings: incoming,
-                    emptyText: 'No incoming requests',
-                  ),
-                  BookingListWidget(
-                    bookings: confirmed,
-                    emptyText: 'No confirmed bookings',
-                  ),
-                  BookingListWidget(
-                    bookings: completed,
-                    emptyText: 'No completed bookings',
-                  ),
-                ],
+              final emptyTexts = [
+                'No pending requests',
+                'No active bookings',
+                'No completed bookings',
+                'No cancelled bookings',
+              ];
+
+              return BookingListWidget(
+                bookings: lists[_selectedTab],
+                emptyText: emptyTexts[_selectedTab],
               );
             },
           ),

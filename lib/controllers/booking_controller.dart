@@ -191,4 +191,47 @@ class BookingController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> updateBookingStatus({
+    required String bookingId,
+    required String status,
+    required VoidCallback onSuccess,
+    required VoidCallback onError,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final token = _storageService.getAccessToken();
+      if (token == null) {
+        _error = 'Not authenticated';
+        onError();
+        return;
+      }
+
+      final result = await _bookingServices.updateBookingStatus(
+        accessToken: token,
+        bookingId: bookingId,
+        status: status,
+      );
+
+      if (result['success'] == true) {
+        final index = _bookings.indexWhere((b) => b.id == bookingId);
+        if (index != -1) {
+          _bookings[index] = BookingModel.fromJson(result['booking']);
+        }
+        onSuccess();
+      } else {
+        _error = result['message'];
+        onError();
+      }
+    } catch (e) {
+      _error = 'Something went wrong. Please try again.';
+      onError();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

@@ -59,4 +59,21 @@ class BookingServices {
 
     return jsonDecode(response.body);
   }
+
+  Future<Map<String, dynamic>> updateBookingStatus({
+    required String accessToken,
+    required String bookingId,
+    required String status,
+  }) async {
+    final response = await http.patch(
+      Uri.parse('${ApiConstants.baseUrl}/bookings/$bookingId/status'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({'status': status}),
+    );
+
+    return jsonDecode(response.body);
+  }
 }
