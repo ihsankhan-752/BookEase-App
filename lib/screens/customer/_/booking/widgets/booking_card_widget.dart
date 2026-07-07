@@ -1,3 +1,4 @@
+import 'package:bookease/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -12,6 +13,8 @@ class BookingCardWidget extends StatelessWidget {
 
   Color _statusColor(String status) {
     switch (status) {
+      case 'pending':
+        return Colors.orange;
       case 'active':
         return Colors.blue;
       case 'complete':
@@ -140,6 +143,46 @@ class BookingCardWidget extends StatelessWidget {
               ),
             ],
           ),
+
+          if ((booking.status == 'complete' ||
+                  booking.status == 'delivered') &&
+              !booking.isReviewed) ...[
+            const SizedBox(height: 12),
+            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.review,
+                    arguments: booking,
+                  );
+                },
+                icon: const Icon(
+                  Icons.rate_review_outlined,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
+                label: const Text(
+                  'Leave a Review',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.primary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

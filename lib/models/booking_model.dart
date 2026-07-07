@@ -16,6 +16,7 @@ class BookingModel {
   final String paymentStatus;
   final String notes;
   final DateTime createdAt;
+  final bool isReviewed;
 
   BookingModel({
     required this.id,
@@ -35,6 +36,7 @@ class BookingModel {
     required this.paymentStatus,
     required this.notes,
     required this.createdAt,
+    this.isReviewed = false,
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
@@ -73,6 +75,7 @@ class BookingModel {
       paymentStatus: json['paymentStatus'] ?? 'unpaid',
       notes: json['notes'] ?? '',
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      isReviewed: json['isReviewed'] ?? false,
     );
   }
 }

@@ -13,6 +13,7 @@ import '../screens/customer/_/custom_navbar.dart';
 import '../screens/customer/_/home/service_detail_screen.dart';
 import '../screens/customer/_/notification/notification_screen.dart';
 import '../screens/customer/_/profile/profile_screen.dart';
+import '../screens/customer/_/review_screen.dart';
 import '../screens/service_provider/custom_navbar/bookings/provider_booking_details_screen.dart';
 import '../screens/service_provider/custom_navbar/provider_custom_navbar.dart';
 import '../screens/service_provider/custom_navbar/services/provider_add_service_screen.dart';
@@ -34,6 +35,7 @@ class AppRoutes {
   static const String providerAvailability = '/provider_availability';
   static const String providerBookingDetails = '/provider_booking_details';
   static const String providerAddService = '/provider_add_service';
+  static const String review = '/review';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -83,6 +85,11 @@ class AppRoutes {
       case providerAddService:
         return MaterialPageRoute(
           builder: (_) => const ProviderAddServiceScreen(),
+        );
+      case AppRoutes.review:
+        final booking = settings.arguments as BookingModel;
+        return MaterialPageRoute(
+          builder: (_) => ReviewScreen(booking: booking),
         );
       default:
         return MaterialPageRoute(

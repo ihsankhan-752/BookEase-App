@@ -3,14 +3,32 @@ import 'package:bookease/routes/app_routes.dart';
 import 'package:bookease/theme/app_colors.dart';
 import 'package:bookease/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:bookease/controllers/review_controller.dart';
 
-class ServiceDetailScreen extends StatelessWidget {
+class ServiceDetailScreen extends StatefulWidget {
   final ServiceModel service;
 
   const ServiceDetailScreen({super.key, required this.service});
 
   @override
+  State<ServiceDetailScreen> createState() => _ServiceDetailScreenState();
+}
+
+class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ReviewController>(context, listen: false)
+          .getServiceReviews(serviceId: widget.service.id, onError: () {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final service = widget.service;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -250,16 +268,108 @@ class ServiceDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Empty reviews state
-                  if (service.totalReviews == 0)
-                    Center(
-                      child: Text(
-                        'No reviews yet',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
+                  Consumer<ReviewController>(
+                    builder: (context, reviewController, _) {
+                      if (reviewController.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (reviewController.reviews.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No reviews yet',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: reviewController.reviews.length,
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 24, color: Color(0xFFEEEEEE)),
+                        itemBuilder: (context, index) {
+                          final review = reviewController.reviews[index];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor:
+                                        AppColors.primary.withOpacity(0.1),
+                                    child: Text(
+                                      review.userName.isNotEmpty
+                                          ? review.userName[0].toUpperCase()
+                                          : 'U',
+                                      style: const TextStyle(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          review.userName.isNotEmpty
+                                              ? review.userName
+                                              : 'User',
+                                          style: AppTextStyles.bodyLarge
+                                              .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          DateFormat('MMM dd, yyyy')
+                                              .format(review.createdAt),
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                            color: Colors.grey,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    children: List.generate(
+                                      5,
+                                      (i) => Icon(
+                                        i < review.rating
+                                            ? Icons.star_rounded
+                                            : Icons.star_border_rounded,
+                                        color: Colors.amber,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (review.review.isNotEmpty) ...[
+                                const SizedBox(height: 12),
+                                Text(
+                                  review.review,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: Colors.black87,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
